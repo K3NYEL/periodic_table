@@ -12,7 +12,7 @@ Aplicación de escritorio/web de tabla periódica construida con Python y Flet. 
 - Favoritos y notas por elemento.
 - Ajustes de tema, idioma, unidad de temperatura, tamaño de casilla y colores por categoría.
 
-> El conjunto inicial incluye los 118 elementos y sus posiciones/categorías. Las propiedades físicas y químicas que no estén presentes en el archivo de datos se muestran como **No disponible**; no se inventan valores. El repositorio JSON puede ampliarse sin modificar la interfaz.
+> El conjunto contiene los 118 elementos con masa atómica, configuración electrónica, electronegatividad, estado, puntos de fusión/ebullición y densidad cuando la fuente dispone de esos valores. Los campos ausentes permanecen como `null` y se muestran como **No disponible**.
 
 ## Arquitectura
 
@@ -53,7 +53,7 @@ uv run pytest
 
 ## Datos
 
-El archivo `src/data/elements.json` contiene los 118 elementos. Los campos opcionales aceptan `null`; al incorporar datos de propiedades, conservar unidades y procedencia de cada fuente.
+El archivo `src/data/elements.json` contiene los 118 elementos. Los datos base se adaptaron de [Periodic-Table-JSON](https://github.com/Bowserinator/Periodic-Table-JSON); cada registro conserva su URL de procedencia en `source_url`. Temperaturas en kelvin y densidad normalizada a g/cm³. Los valores ausentes permanecen como `null`.
 
 ## Estado de implementación
 
