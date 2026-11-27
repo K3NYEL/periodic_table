@@ -11,20 +11,25 @@ class PeriodicTableApp:
  def __init__(self,page:ft.Page):
   self.page=page; self.repo=JsonElementRepository(); self.service=ElementService(self.repo); self.compare=CompareService()
   self.favorites=set(); self.notes={}; self.collections={"Examen viernes":set(),"Metales":set(),"Gases":set()}
-  self.selected=None; self.route="Tabla"; self.query=""; self.category="Todos"; self.search_category=None; self.search_block=None; self.search_period=None; self.quiz_mode="Símbolos"; self.quiz_index=0; self.score=0; self.streak=0; self.best=0; self.quiz_answer=None; self.quiz_checked=False; self.quiz_selected=None; self.settings={"Tema":"Claro","Idioma":"Español","Temperatura":"K","Tamaño":"Normal","Colores":True}
+  self.selected=None; self.route="Tabla"; self.query=""; self.category="Todos"; self.search_category=None; self.search_phase=None; self.search_block=None; self.search_period=None; self.quiz_mode="Símbolos"; self.quiz_index=0; self.score=0; self.streak=0; self.best=0; self.quiz_answer=None; self.quiz_checked=False; self.quiz_selected=None; self.settings={"Tema":"Claro","Idioma":"Español","Temperatura":"K","Tamaño":"Normal","Colores":True}
   page.title="PeriodicTable"; page.padding=0; page.bgcolor=BG; page.theme_mode=ft.ThemeMode.LIGHT; page.window_min_width=900; page.window_min_height=650
   self.root=ft.Row(spacing=0,expand=True,controls=[self.sidebar(),ft.Container(expand=True,padding=24,content=ft.Column(expand=True,scroll=ft.ScrollMode.AUTO,controls=[self.content()],spacing=18))])
   page.add(self.root)
- def text(self,s,size=14,weight=None,color=TEXT): return ft.Text(str(s),size=size,weight=weight,color=color)
- def btn(self,label,fn,primary=False): return ft.Button(label,on_click=fn,bgcolor=BLUE if primary else "#FFFFFF",color="white" if primary else TEXT)
- def card(self,content,padding=16): return ft.Container(content=content,bgcolor="white",border=ft.Border.all(1,"#E4E7EC"),border_radius=12,padding=padding)
+ def text(self,s,size=14,weight=None,color=TEXT):
+  if color==TEXT and self.settings["Tema"]=="Oscuro": color="#F0F6FC"
+  elif color==MUTED and self.settings["Tema"]=="Oscuro": color="#A9B4C2"
+  return ft.Text(str(s),size=size,weight=weight,color=color)
+ def btn(self,label,fn,primary=False): return ft.Button(label,on_click=fn,bgcolor=BLUE if primary else ("#242B36" if self.settings["Tema"]=="Oscuro" else "#FFFFFF"),color="white" if primary else ("#F0F6FC" if self.settings["Tema"]=="Oscuro" else TEXT))
+ def card(self,content,padding=16):
+  dark=self.settings["Tema"]=="Oscuro"
+  return ft.Container(content=content,bgcolor="#161B22" if dark else "white",border=ft.Border.all(1,"#2A313C" if dark else "#E4E7EC"),border_radius=12,padding=padding)
  def sidebar(self):
   items=["Tabla","Buscar","Comparar","Quiz","Favoritos"]
   nav=[]
   for item in items:
    nav.append(ft.Container(content=ft.Text(item,weight=ft.FontWeight.W_600 if self.route==item else None,color=BLUE if self.route==item else TEXT),padding=12,border_radius=9,bgcolor="#E8EEFF" if self.route==item else None,on_click=lambda e,n=item:self.go(n)))
   nav.append(ft.Container(expand=True)); nav.append(ft.Container(content=self.text("Ajustes",color=BLUE if self.route=="Ajustes" else TEXT),padding=12,on_click=lambda e:self.go("Ajustes")))
-  return ft.Container(width=150,bgcolor="white",border=ft.Border.only(right=ft.BorderSide(1,"#E4E7EC")),padding=12,content=ft.Column(controls=[ft.Text("PeriodicTable",size=18,weight=ft.FontWeight.BOLD),ft.Container(height=12),*nav],expand=True))
+  return ft.Container(width=150,bgcolor="#161B22" if self.settings["Tema"]=="Oscuro" else "white",border=ft.Border.only(right=ft.BorderSide(1,"#2A313C" if self.settings["Tema"]=="Oscuro" else "#E4E7EC")),padding=12,content=ft.Column(controls=[ft.Text("PeriodicTable",size=18,weight=ft.FontWeight.BOLD),ft.Container(height=12),*nav],expand=True))
  def go(self,route): self.route=route; self.refresh()
  def refresh(self):
   self.root.controls[0]=self.sidebar(); self.root.controls[1].content.controls=[self.content()]; self.page.update()
@@ -70,14 +75,16 @@ class PeriodicTableApp:
   return self.card(ft.Column(controls=[self.text("SELECCIONADO",10,color=MUTED),self.text(f"{e.number}  {e.name} ({e.symbol})",18,ft.FontWeight.BOLD),*[ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN,controls=[self.text(k,color=MUTED),self.text(v,weight=ft.FontWeight.BOLD)]) for k,v in props],self.btn("★ Favorito",lambda ev:self.toggle_favorite(e.number)),self.btn("Comparar",lambda ev:self.add_compare(e.number)),self.btn("Abrir en Tabla",lambda ev:self.go("Tabla"),True)],spacing=10))
  def search_view(self):
   q=ft.TextField(label="Por nombre, símbolo o número atómico",value=self.query,on_change=lambda e:self.set_query(e.control.value),expand=True)
-  results=self.service.filter(self.service.search(self.query),category=self.search_category,block=self.search_block,period=self.search_period)
-  category_buttons=ft.Row(wrap=True,spacing=6,controls=[self.btn(label,lambda ev,v=value:self.set_search_filter("category",v),self.search_category==value) for label,value in [("Todas",None),("No metal","No metal"),("Transición","Transición"),("Gas noble","Gas noble"),("Alcalino","Alcalino"),("Halógeno","Halógeno"),("Metaloide","Metaloide"),("Lantánido","Lantánido"),("Actínido","Actínido")]])
+  results=self.service.filter(self.service.search(self.query),category=self.search_category,phase=self.search_phase,block=self.search_block,period=self.search_period)
+  category_buttons=ft.Row(wrap=True,spacing=6,controls=[self.btn(label,lambda ev,v=value:self.set_search_filter("category",v),self.search_category==value) for label,value in [("Todas",None),("No metal","No metal"),("Transición","Transición"),("Gas noble","Gas noble"),("Alcalino","Alcalino"),("Halógeno","Halógeno"),("Metaloide","Metaloide"),("Post-transición","Post-transición"),("Alcalinotérreo","Alcalinotérreo"),("Lantánido","Lantánido"),("Actínido","Actínido")]])
   block_buttons=ft.Row(wrap=True,spacing=6,controls=[self.btn(label,lambda ev,v=value:self.set_search_filter("block",v),self.search_block==value) for label,value in [("Todos los bloques",None),("s","s"),("p","p"),("d","d"),("f","f")]])
+  phase_buttons=ft.Row(wrap=True,spacing=6,controls=[self.btn(label,lambda ev,v=value:self.set_search_filter("phase",v),self.search_phase==value) for label,value in [("Cualquier estado",None),("Sólido","Sólido"),("Líquido","Líquido"),("Gas","Gas")]])
   period_buttons=ft.Row(wrap=True,spacing=6,controls=[self.btn(label,lambda ev,v=value:self.set_search_filter("period",v),self.search_period==value) for label,value in [("Todos los períodos",None)]+[(f"Período {n}",n) for n in range(1,8)]])
-  return ft.Column(spacing=14,controls=[self.header("Buscar elementos","Encuentra por nombre, símbolo o número atómico"),ft.Row(controls=[q,self.btn("Buscar",lambda ev:self.refresh(),True)]),self.text("Filtros · Categoría",12,color=MUTED),category_buttons,self.text("Bloque",12,color=MUTED),block_buttons,self.text("Período",12,color=MUTED),period_buttons,self.text(f"{len(results)} resultados · ordenar por número atómico",12,color=MUTED),ft.Row(vertical_alignment=ft.CrossAxisAlignment.START,spacing=16,controls=[ft.Column(expand=True,controls=[self.element_card(e) for e in results[:60]],spacing=8),ft.Container(width=310,content=self.detail_panel(self.service.get(self.selected) if self.selected else None))])])
+  return ft.Column(spacing=14,controls=[self.header("Buscar elementos","Encuentra por nombre, símbolo o número atómico"),ft.Row(controls=[q,self.btn("Buscar",lambda ev:self.refresh(),True)]),self.text("Filtros · Categoría",12,color=MUTED),category_buttons,self.text("Estado",12,color=MUTED),phase_buttons,self.text("Bloque",12,color=MUTED),block_buttons,self.text("Período",12,color=MUTED),period_buttons,self.text(f"{len(results)} resultados · ordenar por número atómico",12,color=MUTED),ft.Row(vertical_alignment=ft.CrossAxisAlignment.START,spacing=16,controls=[ft.Column(expand=True,controls=[self.element_card(e) for e in results[:60]],spacing=8),ft.Container(width=310,content=self.detail_panel(self.service.get(self.selected) if self.selected else None))])])
  def set_query(self,q): self.query=q; self.refresh()
  def set_search_filter(self,key,value):
   if key=="category": self.search_category=value
+  elif key=="phase": self.search_phase=value
   elif key=="block": self.search_block=value
   elif key=="period": self.search_period=value
   self.refresh()
@@ -130,7 +137,11 @@ class PeriodicTableApp:
   for key,opts in [("Tema",["Claro","Oscuro","Sistema"]),("Idioma",["Español","English"]),("Temperatura",["K","°C","°F"]),("Tamaño",["Compacto","Normal","Grande"]),("Colores",["Sí","No"])]:
    rows.append(self.card(ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN,controls=[self.text(key,15,ft.FontWeight.BOLD),ft.Row(controls=[self.btn(x,lambda ev,k=key,v=x:self.set_setting(k,v),self.settings[key]==(True if key=="Colores" and x=="Sí" else False if key=="Colores" else x)) for x in opts]) ])))
   return ft.Column(spacing=12,controls=[self.header("Ajustes","Preferencias de la aplicación"),*rows,self.card(ft.Column(controls=[self.text("Datos",16,ft.FontWeight.BOLD),self.text("Fuente: src/data/elements.json"),self.text(f"Elementos: {len(self.service.all())}"),self.text("Datos de propiedades y unidades cargados desde el archivo JSON."),self.btn("Recargar datos",lambda ev:self.reload_data()),self.btn("Restablecer ajustes",lambda ev:self.reset_settings())]))])
- def set_setting(self,k,v): self.settings[k]=(v=="Sí") if k=="Colores" else v; self.page.theme_mode=ft.ThemeMode.DARK if self.settings["Tema"]=="Oscuro" else ft.ThemeMode.LIGHT; self.refresh()
+ def set_setting(self,k,v):
+  self.settings[k]=(v=="Sí") if k=="Colores" else v
+  self.page.theme_mode=ft.ThemeMode.DARK if self.settings["Tema"]=="Oscuro" else ft.ThemeMode.SYSTEM if self.settings["Tema"]=="Sistema" else ft.ThemeMode.LIGHT
+  self.page.bgcolor="#0D1117" if self.settings["Tema"]=="Oscuro" else BG
+  self.refresh()
  def reload_data(self): self.repo.reload(); self.refresh()
  def reset_settings(self): self.settings={"Tema":"Claro","Idioma":"Español","Temperatura":"K","Tamaño":"Normal","Colores":True}; self.refresh()
 
