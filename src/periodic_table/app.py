@@ -10,7 +10,7 @@ COLORS={"No metal":"#DDF1E6","Gas noble":"#E9DDF6","Alcalino":"#F9E7C9","Alcalin
 class PeriodicTableApp:
  def __init__(self,page:ft.Page):
   self.page=page; self.repo=JsonElementRepository(); self.service=ElementService(self.repo); self.compare=CompareService()
-  self.favorites=set(); self.notes={}; self.collections={"Examen viernes":set(),"Metales":set(),"Gases":set()}
+  self.favorites=set(); self.notes={}; self.collections={"Examen viernes":set(),"Metales":set(),"Gases":set()}; self.active_collection=None; self.new_collection_name=""
   self.selected=None; self.route="Tabla"; self.query=""; self.category="Todos"; self.search_category=None; self.search_phase=None; self.search_block=None; self.search_period=None; self.quiz_mode="Símbolos"; self.quiz_index=0; self.score=0; self.streak=0; self.best=0; self.quiz_answer=None; self.quiz_checked=False; self.quiz_selected=None; self.settings={"Tema":"Claro","Idioma":"Español","Temperatura":"K","Tamaño":"Normal","Colores":True}
   page.title="PeriodicTable"; page.padding=0; page.bgcolor=BG; page.theme_mode=ft.ThemeMode.LIGHT; page.window_min_width=900; page.window_min_height=650
   self.root=ft.Row(spacing=0,expand=True,controls=[self.sidebar(),ft.Container(expand=True,padding=24,content=ft.Column(expand=True,scroll=ft.ScrollMode.AUTO,controls=[self.content()],spacing=18))])
@@ -107,8 +107,38 @@ class PeriodicTableApp:
  def toggle_favorite(self,n):
   self.favorites.symmetric_difference_update({n}); self.refresh()
  def favorites_view(self):
-  elems=[self.service.get(n) for n in sorted(self.favorites)]
-  return ft.Column(spacing=14,controls=[self.header("Favoritos","Tus elementos guardados y sus notas"),ft.Text(f"{len(elems)} elementos guardados"),ft.Row(wrap=True,controls=[self.card(ft.Column(controls=[self.element_card(e,False),ft.TextField(label="Añadir una nota",value=self.notes.get(e.number,""),on_change=lambda ev,n=e.number:self.save_note(n,ev.control.value)),self.btn("Quitar",lambda ev,n=e.number:self.toggle_favorite(n))])) for e in elems]) if elems else self.card(self.text("Aún no tienes favoritos. Abre un elemento y pulsa Favorito.",color=MUTED))])
+  saved=[self.service.get(n) for n in sorted(self.favorites)]
+  if self.active_collection is None:
+   elems=saved
+  else:
+   elems=[self.service.get(n) for n in sorted(self.collections.get(self.active_collection,set())) if n in self.favorites]
+  collection_controls=[self.btn(f"{name} ({len(numbers)})",lambda ev,n=name:self.open_collection(n),self.active_collection==name) for name,numbers in self.collections.items()]
+  collection_controls.insert(0,self.btn("Todos",lambda ev:self.open_collection(None),self.active_collection is None))
+  new_name=ft.TextField(label="Nombre de colección",value=self.new_collection_name,on_change=lambda ev:self.set_collection_name(ev.control.value),expand=True)
+  cards=[]
+  for e in elems:
+   membership=[]
+   for name,numbers in self.collections.items():
+    label=("Quitar de " if e.number in numbers else "Añadir a ")+name
+    membership.append(self.btn(label,lambda ev,n=e.number,c=name:self.toggle_collection_member(c,n)))
+   cards.append(self.card(ft.Column(controls=[self.element_card(e,False),ft.TextField(label="Añadir una nota",value=self.notes.get(e.number,""),on_change=lambda ev,n=e.number:self.save_note(n,ev.control.value)),ft.Row(wrap=True,controls=membership),self.btn("Quitar de favoritos",lambda ev,n=e.number:self.toggle_favorite(n))])))
+  return ft.Column(spacing=14,controls=[self.header("Favoritos","Tus elementos guardados y sus notas"),self.text(f"{len(saved)} elementos guardados"),ft.Row(wrap=True,controls=collection_controls),ft.Row(controls=[new_name,self.btn("+ Nueva colección",lambda ev:self.create_collection(),True)]),ft.Row(wrap=True,controls=cards) if cards else self.card(self.text("No hay elementos en esta colección. Añade favoritos desde el panel de detalle.",color=MUTED))])
+ def set_collection_name(self,value): self.new_collection_name=value
+ def create_collection(self):
+  name=self.new_collection_name.strip()
+  if not name or name in self.collections:
+   self.page.snack_bar=ft.SnackBar(ft.Text("Escribe un nombre nuevo para la colección."))
+   self.page.snack_bar.open=True
+   return
+  self.collections[name]=set()
+  self.new_collection_name=""
+  self.active_collection=name
+  self.refresh()
+ def open_collection(self,name): self.active_collection=name; self.refresh()
+ def toggle_collection_member(self,name,number):
+  if number in self.collections[name]: self.collections[name].remove(number)
+  else: self.collections[name].add(number)
+  self.refresh()
  def save_note(self,n,v): self.notes[n]=v
  def quiz_view(self):
   pool=self.service.all()[:36]
