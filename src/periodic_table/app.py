@@ -33,7 +33,7 @@ class PeriodicTableApp:
   return {"Tabla":self.table_view,"Buscar":self.search_view,"Comparar":self.compare_view,"Quiz":self.quiz_view,"Favoritos":self.favorites_view,"Ajustes":self.settings_view}.get(self.route,self.table_view)()
  def element_tile(self,e):
   bg=COLORS.get(e.category,"#E5E8EF") if self.settings["Colores"] else "#EEF1F5"
-  return ft.Container(width=64,height=72,bgcolor=bg,border_radius=7,padding=6,on_click=lambda ev,n=e.number:self.select(n),content=ft.Column(spacing=1,controls=[self.text(e.number,9,color=MUTED),self.text(e.symbol,19,ft.FontWeight.BOLD),self.text(e.name,8,color=MUTED)]))
+  dimensions={"Compacto":(54,62),"Normal":(64,72),"Grande":(74,82)}[self.settings["Tamaño"]]\n  return ft.Container(width=dimensions[0],height=dimensions[1],bgcolor=bg,border_radius=7,padding=6,on_click=lambda ev,n=e.number:self.select(n),content=ft.Column(spacing=1,controls=[self.text(e.number,9,color=MUTED),self.text(e.symbol,19,ft.FontWeight.BOLD),self.text(e.name,8,color=MUTED)]))
  def table_view(self):
   elems=self.service.all(); cats=["Todos","Metales","No metales","Metaloides","Gases nobles","Favoritos"]
   tabs=ft.Row(wrap=True,controls=[self.btn(c,lambda ev,x=c:self.set_category(x),self.category==c) for c in cats])
@@ -78,7 +78,7 @@ class PeriodicTableApp:
   selected=[self.service.get(n) for n in self.compare.numbers]
   cards=[]
   for e in selected:
-   cards.append(self.card(ft.Column(controls=[self.element_card(e,False),*[ft.Column(spacing=1,controls=[self.text(k,10,color=MUTED),self.text(v,14,ft.FontWeight.BOLD)]) for k,v in [("Masa atómica",e.atomic_mass or "—"),("Categoría",e.category),("Configuración",e.electron_configuration or "—"),("Electronegatividad",e.electronegativity or "—"),("Fusión",e.melting_point or "—"),("Densidad",e.density or "—")]],self.btn("Quitar",lambda ev,n=e.number:self.remove_compare(n))],spacing=10),padding=12))
+   cards.append(self.card(ft.Column(controls=[self.element_card(e,False),*[ft.Column(spacing=1,controls=[self.text(k,10,color=MUTED),self.text(v,14,ft.FontWeight.BOLD)]) for k,v in [("Masa atómica",e.atomic_mass or "—"),("Categoría",e.category),("Configuración",e.electron_configuration or "—"),("Electronegatividad",e.electronegativity or "—"),("Fusión",self.format_temp(e.melting_point)),("Densidad",f"{e.density} {e.density_unit}" if e.density is not None else "—")]],self.btn("Quitar",lambda ev,n=e.number:self.remove_compare(n))],spacing=10),padding=12))
   add=self.card(ft.Column(alignment=ft.MainAxisAlignment.CENTER,horizontal_alignment=ft.CrossAxisAlignment.CENTER,controls=[self.text(f"{4-len(selected)} espacios disponibles",12),self.btn("+ Añadir",lambda ev:self.go("Buscar"),True)]))
   return ft.Column(spacing=16,controls=[self.header("Comparar elementos","Compara propiedades lado a lado · hasta 4 elementos"),ft.Row(wrap=True,vertical_alignment=ft.CrossAxisAlignment.START,controls=cards+[add]),self.card(ft.Column(controls=[self.text("UBICACIÓN EN LA TABLA",12,ft.FontWeight.BOLD),*[self.text(f"{e.name}: grupo {e.group} · período {e.period}") for e in selected],self.btn("Limpiar comparación",lambda e:self.clear_compare())]))])
  def remove_compare(self,n): self.compare.toggle(n); self.refresh()
