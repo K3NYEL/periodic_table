@@ -11,7 +11,7 @@ class PeriodicTableApp:
  def __init__(self,page:ft.Page):
   self.page=page; self.repo=JsonElementRepository(); self.service=ElementService(self.repo); self.compare=CompareService()
   self.favorites=set(); self.notes={}; self.collections={"Examen viernes":set(),"Metales":set(),"Gases":set()}
-  self.selected=None; self.route="Tabla"; self.query=""; self.category="Todos"; self.quiz_mode="Símbolos"; self.quiz_index=0; self.score=0; self.streak=0; self.best=0; self.quiz_answer=None; self.quiz_checked=False; self.settings={"Tema":"Claro","Idioma":"Español","Temperatura":"K","Tamaño":"Normal","Colores":True}
+  self.selected=None; self.route="Tabla"; self.query=""; self.category="Todos"; self.quiz_mode="Símbolos"; self.quiz_index=0; self.score=0; self.streak=0; self.best=0; self.quiz_answer=None; self.quiz_checked=False; self.quiz_selected=None; self.settings={"Tema":"Claro","Idioma":"Español","Temperatura":"K","Tamaño":"Normal","Colores":True}
   page.title="PeriodicTable"; page.padding=0; page.bgcolor=BG; page.theme_mode=ft.ThemeMode.LIGHT; page.window_min_width=900; page.window_min_height=650
   self.root=ft.Row(spacing=0,expand=True,controls=[self.sidebar(),ft.Container(expand=True,padding=24,content=ft.Column(expand=True,scroll=ft.ScrollMode.AUTO,controls=[self.content()],spacing=18))])
   page.add(self.root)
@@ -42,12 +42,12 @@ class PeriodicTableApp:
   for period in range(1,8):
    row=[]
    for group in range(1,19):
-    e=next((x for x in elems if x.period==period and x.group==group and x.number not in range(58,72) and x.number not in range(90,104)),None)
+    e=next((x for x in elems if x.period==period and x.group==group and x.number not in range(58,72) and x.number not in range(90,104) and (self.category=="Todos" or self.category=="Favoritos" and x.number in self.favorites or self.category=="Metales" and x.category not in ("No metal","Gas noble","Metaloide","Halógeno") or self.category=="No metales" and x.category in ("No metal","Gas noble","Halógeno") or self.category=="Metaloides" and x.category=="Metaloide" or self.category=="Gases nobles" and x.category=="Gas noble")),None)
     if e: row.append(self.element_tile(e))
     else: row.append(ft.Container(width=64,height=72))
    grid.append(ft.Row(spacing=4,controls=row))
   frows=[]
-  for start,end in [(57,71),(89,103)]: frows.append(ft.Row(spacing=4,controls=[ft.Container(width=64) for _ in range(2)]+[self.element_tile(e) for e in elems if start<=e.number<=end]))
+  for start,end in [(57,71),(89,103)]: frows.append(ft.Row(spacing=4,controls=[ft.Container(width=64) for _ in range(3)]+[self.element_tile(e) for e in elems if start<=e.number<=end]))
   return ft.Column(spacing=14,controls=[self.header("Tabla periódica",f"{len(elems)} elementos"),tabs,legend,*grid,*frows])
  def set_category(self,c): self.category=c; self.refresh()
  def select(self,n): self.selected=n; self.route="Buscar"; self.refresh()
@@ -89,7 +89,7 @@ class PeriodicTableApp:
   correct=target.symbol if self.quiz_mode=="Símbolos" else target.name if self.quiz_mode=="Nombres" else target.category
   choices=[correct]+[ (e.symbol if self.quiz_mode=="Símbolos" else e.name if self.quiz_mode=="Nombres" else e.category) for e in random.sample([x for x in pool if x.number!=target.number],3)]
   random.Random(self.quiz_index).shuffle(choices)
-  options=ft.Column(controls=[ft.Radio(value=v,label=f"{chr(65+i)}   {v}") for i,v in enumerate(choices)])
+  options=ft.RadioGroup(value=self.quiz_selected,on_change=lambda ev:self.set_quiz_answer(ev.control.value),content=ft.Column(controls=[ft.Radio(value=v,label=f"{chr(65+i)}   {v}") for i,v in enumerate(choices)]))
   return ft.Column(spacing=16,controls=[self.header("Quiz","Practica símbolos, nombres y categorías"),ft.Row(controls=[self.btn(m,lambda ev,x=m:self.set_quiz_mode(x),self.quiz_mode==m) for m in ["Símbolos","Nombres","Categorías"]]),self.card(ft.Column(controls=[self.text(f"Pregunta {self.quiz_index+1}",12,color=MUTED),self.text(prompt,24,ft.FontWeight.BOLD),options,self.btn("Comprobar",lambda ev:self.check_quiz(target,correct),True),self.text(f"Puntuación: {self.score} · Racha: {self.streak} · Mejor: {self.best}")],spacing=18))])
  def set_quiz_mode(self,m): self.quiz_mode=m; self.refresh()
  def check_quiz(self,target,correct):
