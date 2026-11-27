@@ -1,6 +1,7 @@
-"""Pure domain types; intentionally independent from Flet."""
+"""Pure domain model. This module deliberately has no Flet dependency."""
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any
+
 
 @dataclass(frozen=True, slots=True)
 class Element:
@@ -11,16 +12,21 @@ class Element:
     period: int
     block: str
     category: str
-    atomic_mass: Optional[float] = None
-    phase: Optional[str] = None
-    electronegativity: Optional[float] = None
-    melting_point: Optional[float] = None
-    boiling_point: Optional[float] = None
-    density: Optional[float] = None
-    density_unit: Optional[str] = None
-    source_url: Optional[str] = None
-    electron_configuration: Optional[str] = None
+    atomic_mass: float | None = None
+    phase: str | None = None
+    electronegativity: float | None = None
+    melting_point: float | None = None
+    boiling_point: float | None = None
+    density: float | None = None
+    density_unit: str | None = None
+    source_url: str | None = None
+    electron_configuration: str | None = None
 
     @classmethod
-    def from_dict(cls, data: dict):
-        return cls(**data)
+    def from_dict(cls, data: dict[str, Any]) -> "Element":
+        allowed = cls.__dataclass_fields__
+        return cls(**{key: value for key, value in data.items() if key in allowed})
+
+    @property
+    def position(self) -> tuple[int, int]:
+        return self.period, self.group
