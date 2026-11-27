@@ -50,10 +50,10 @@ class PeriodicTableApp:
    for group in range(1,19):
     e=next((x for x in elems if x.period==period and x.group==group and x.number not in range(58,72) and x.number not in range(90,104) and (self.category=="Todos" or self.category=="Favoritos" and x.number in self.favorites or self.category=="Metales" and x.category not in ("No metal","Gas noble","Metaloide","Halógeno") or self.category=="No metales" and x.category in ("No metal","Gas noble","Halógeno") or self.category=="Metaloides" and x.category=="Metaloide" or self.category=="Gases nobles" and x.category=="Gas noble")),None)
     if e: row.append(self.element_tile(e))
-    else: row.append(ft.Container(width=64,height=72))
+    else:\n      size={"Compacto":(54,62),"Normal":(64,72),"Grande":(74,82)}[self.settings["Tamaño"]]\n      row.append(ft.Container(width=size[0],height=size[1]))
    grid.append(ft.Row(spacing=4,controls=row))
   frows=[]
-  for start,end in [(57,71),(89,103)]: frows.append(ft.Row(spacing=4,controls=[ft.Container(width=64) for _ in range(3)]+[self.element_tile(e) for e in elems if start<=e.number<=end]))
+  for start,end in [(57,71),(89,103)]:\n   size={"Compacto":(54,62),"Normal":(64,72),"Grande":(74,82)}[self.settings["Tamaño"]]\n   frows.append(ft.Row(spacing=4,controls=[ft.Container(width=size[0]) for _ in range(3)]+[self.element_tile(e) for e in elems if start<=e.number<=end]))
   return ft.Column(spacing=14,controls=[self.header("Tabla periódica",f"{len(elems)} elementos"),tabs,legend,*grid,*frows])
  def set_category(self,c): self.category=c; self.refresh()
  def select(self,n): self.selected=n; self.route="Buscar"; self.refresh()
@@ -107,13 +107,20 @@ class PeriodicTableApp:
   return ft.Column(spacing=14,controls=[self.header("Favoritos","Tus elementos guardados y sus notas"),ft.Text(f"{len(elems)} elementos guardados"),ft.Row(wrap=True,controls=[self.card(ft.Column(controls=[self.element_card(e,False),ft.TextField(label="Añadir una nota",value=self.notes.get(e.number,""),on_change=lambda ev,n=e.number:self.save_note(n,ev.control.value)),self.btn("Quitar",lambda ev,n=e.number:self.toggle_favorite(n))])) for e in elems]) if elems else self.card(self.text("Aún no tienes favoritos. Abre un elemento y pulsa Favorito.",color=MUTED))])
  def save_note(self,n,v): self.notes[n]=v
  def quiz_view(self):
-  pool=self.service.all()[:36]; target=pool[self.quiz_index%len(pool)]; prompt=f"¿Cuál es el símbolo de {target.name}?" if self.quiz_mode=="Símbolos" else f"¿Qué elemento tiene el símbolo {target.symbol}?" if self.quiz_mode=="Nombres" else f"¿Cuál es la categoría de {target.name}?"
+  pool=self.service.all()[:36]
+  target=pool[self.quiz_index%len(pool)]
+  prompt=f"¿Cuál es el símbolo de {target.name}?" if self.quiz_mode=="Símbolos" else f"¿Qué elemento tiene el símbolo {target.symbol}?" if self.quiz_mode=="Nombres" else f"¿Cuál es la categoría de {target.name}?"
   correct=target.symbol if self.quiz_mode=="Símbolos" else target.name if self.quiz_mode=="Nombres" else target.category
-  choices=[correct]+[ (e.symbol if self.quiz_mode=="Símbolos" else e.name if self.quiz_mode=="Nombres" else e.category) for e in random.sample([x for x in pool if x.number!=target.number],3)]
+  if self.quiz_mode=="Categorías":
+   candidates=list({e.category for e in pool if e.category!=correct})
+   choices=[correct]+random.Random(self.quiz_index).sample(candidates,min(3,len(candidates)))
+  else:
+   candidates=[e.symbol if self.quiz_mode=="Símbolos" else e.name for e in pool if e.number!=target.number]
+   choices=[correct]+random.Random(self.quiz_index).sample(candidates,3)
   random.Random(self.quiz_index).shuffle(choices)
   options=ft.RadioGroup(value=self.quiz_selected,on_change=lambda ev:self.set_quiz_answer(ev.control.value),content=ft.Column(controls=[ft.Radio(value=v,label=f"{chr(65+i)}   {v}") for i,v in enumerate(choices)]))
   return ft.Column(spacing=16,controls=[self.header("Quiz","Practica símbolos, nombres y categorías"),ft.Row(controls=[self.btn(m,lambda ev,x=m:self.set_quiz_mode(x),self.quiz_mode==m) for m in ["Símbolos","Nombres","Categorías"]]),self.card(ft.Column(controls=[self.text(f"Pregunta {self.quiz_index+1}",12,color=MUTED),self.text(prompt,24,ft.FontWeight.BOLD),options,self.btn("Comprobar",lambda ev:self.check_quiz(target,correct),True),self.text(f"Puntuación: {self.score} · Racha: {self.streak} · Mejor: {self.best}")],spacing=18))])
- def set_quiz_mode(self,m): self.quiz_mode=m; self.refresh()
+ def set_quiz_mode(self,m): self.quiz_mode=m; self.quiz_selected=None; self.refresh()
  def set_quiz_answer(self,value): self.quiz_selected=value
  def check_quiz(self,target,correct):
   if self.quiz_selected is None:
