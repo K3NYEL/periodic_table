@@ -1,5 +1,8 @@
 import flet as ft
-from periodic_table.app import main
 
+
+def main(page: ft.Page):
+    pass
+    
 if __name__ == "__main__":
-    ft.app(target=main)
+    ft.run(main)
