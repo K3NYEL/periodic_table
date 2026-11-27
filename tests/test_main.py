@@ -9,7 +9,7 @@ def test_repository_loads_all_118_elements():
     elements = repository.all()
     assert len(elements) == 118
     assert elements[0].symbol == "H"
-    assert elements[-1].symbol == "Og"\n    assert repository.get(2).group == 18\n    assert repository.get(5).group == 13\n    assert repository.get(18).group == 18
+    assert elements[-1].symbol == "Og"\n    assert repository.get(2).group == 18\n    assert repository.get(5).group == 13\n    assert repository.get(18).group == 18\n    assert repository.get(6).atomic_mass is not None\n    assert repository.get(6).electron_configuration is not None\n    assert repository.get(79).density_unit == "g/cm³"
 
 
 def test_search_by_name_symbol_and_atomic_number():
