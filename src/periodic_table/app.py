@@ -11,7 +11,7 @@ class PeriodicTableApp:
  def __init__(self,page:ft.Page):
   self.page=page; self.repo=JsonElementRepository(); self.service=ElementService(self.repo); self.compare=CompareService()
   self.favorites=set(); self.notes={}; self.collections={"Examen viernes":set(),"Metales":set(),"Gases":set()}
-  self.selected=None; self.route="Tabla"; self.query=""; self.category="Todos"; self.quiz_mode="Símbolos"; self.quiz_index=0; self.score=0; self.streak=0; self.best=0; self.quiz_answer=None; self.quiz_checked=False; self.quiz_selected=None; self.settings={"Tema":"Claro","Idioma":"Español","Temperatura":"K","Tamaño":"Normal","Colores":True}
+  self.selected=None; self.route="Tabla"; self.query=""; self.category="Todos"; self.search_category=None; self.search_block=None; self.search_period=None; self.quiz_mode="Símbolos"; self.quiz_index=0; self.score=0; self.streak=0; self.best=0; self.quiz_answer=None; self.quiz_checked=False; self.quiz_selected=None; self.settings={"Tema":"Claro","Idioma":"Español","Temperatura":"K","Tamaño":"Normal","Colores":True}
   page.title="PeriodicTable"; page.padding=0; page.bgcolor=BG; page.theme_mode=ft.ThemeMode.LIGHT; page.window_min_width=900; page.window_min_height=650
   self.root=ft.Row(spacing=0,expand=True,controls=[self.sidebar(),ft.Container(expand=True,padding=24,content=ft.Column(expand=True,scroll=ft.ScrollMode.AUTO,controls=[self.content()],spacing=18))])
   page.add(self.root)
@@ -66,6 +66,11 @@ class PeriodicTableApp:
   results=self.service.search(self.query)
   return ft.Column(spacing=14,controls=[self.header("Buscar elementos","Encuentra por nombre, símbolo o número atómico"),ft.Row(controls=[q,self.btn("Buscar",lambda e:self.refresh(),True)]),self.text(f"{len(results)} resultados · ordenar por número atómico",12,color=MUTED),ft.Row(vertical_alignment=ft.CrossAxisAlignment.START,spacing=16,controls=[ft.Column(expand=True,controls=[self.element_card(e) for e in results[:60]],spacing=8),ft.Container(width=310,content=self.detail_panel(self.service.get(self.selected) if self.selected else None))])])
  def set_query(self,q): self.query=q; self.refresh()
+ def set_search_filter(self,key,value):
+  if key=="category": self.search_category=value
+  elif key=="block": self.search_block=value
+  elif key=="period": self.search_period=value
+  self.refresh()
  def add_compare(self,n):
   if not self.compare.toggle(n): self.page.snack_bar=ft.SnackBar(ft.Text("Puedes comparar hasta 4 elementos")); self.page.snack_bar.open=True
   self.go("Comparar")
