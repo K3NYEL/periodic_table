@@ -50,10 +50,14 @@ class PeriodicTableApp:
    for group in range(1,19):
     e=next((x for x in elems if x.period==period and x.group==group and x.number not in range(58,72) and x.number not in range(90,104) and (self.category=="Todos" or self.category=="Favoritos" and x.number in self.favorites or self.category=="Metales" and x.category not in ("No metal","Gas noble","Metaloide","Halógeno") or self.category=="No metales" and x.category in ("No metal","Gas noble","Halógeno") or self.category=="Metaloides" and x.category=="Metaloide" or self.category=="Gases nobles" and x.category=="Gas noble")),None)
     if e: row.append(self.element_tile(e))
-    else:\n      size={"Compacto":(54,62),"Normal":(64,72),"Grande":(74,82)}[self.settings["Tamaño"]]\n      row.append(ft.Container(width=size[0],height=size[1]))
+    else:
+      size={"Compacto":(54,62),"Normal":(64,72),"Grande":(74,82)}[self.settings["Tamaño"]]
+      row.append(ft.Container(width=size[0],height=size[1]))
    grid.append(ft.Row(spacing=4,controls=row))
   frows=[]
-  for start,end in [(57,71),(89,103)]:\n   size={"Compacto":(54,62),"Normal":(64,72),"Grande":(74,82)}[self.settings["Tamaño"]]\n   frows.append(ft.Row(spacing=4,controls=[ft.Container(width=size[0]) for _ in range(3)]+[self.element_tile(e) for e in elems if start<=e.number<=end]))
+  for start,end in [(57,71),(89,103)]:
+   size={"Compacto":(54,62),"Normal":(64,72),"Grande":(74,82)}[self.settings["Tamaño"]]
+   frows.append(ft.Row(spacing=4,controls=[ft.Container(width=size[0]) for _ in range(3)]+[self.element_tile(e) for e in elems if start<=e.number<=end]))
   return ft.Column(spacing=14,controls=[self.header("Tabla periódica",f"{len(elems)} elementos"),tabs,legend,*grid,*frows])
  def set_category(self,c): self.category=c; self.refresh()
  def select(self,n): self.selected=n; self.route="Buscar"; self.refresh()
