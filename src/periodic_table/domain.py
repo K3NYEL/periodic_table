@@ -17,6 +17,8 @@ class Element:
     melting_point: Optional[float] = None
     boiling_point: Optional[float] = None
     density: Optional[float] = None
+    density_unit: Optional[str] = None
+    source_url: Optional[str] = None
     electron_configuration: Optional[str] = None
 
     @classmethod
