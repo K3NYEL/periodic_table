@@ -57,9 +57,9 @@ class PeriodicTableApp:
   if button: body.controls.append(self.btn("Ver detalle",lambda ev,n=e.number:self.show_detail(n)))
   return self.card(body)
  def show_detail(self,n): self.selected=n; self.refresh()
- def detail_panel(self,e):
+ def format_temp(self,value):\n  if value is None: return "No disponible"\n  unit=self.settings["Temperatura"]\n  if unit=="°C": return f"{value-273.15:.2f} °C"\n  if unit=="°F": return f"{(value-273.15)*9/5+32:.2f} °F"\n  return f"{value:g} K"\n def detail_panel(self,e):
   if not e:return self.card(self.text("Selecciona un elemento para ver sus propiedades",color=MUTED))
-  props=[("Grupo / Período",f"{e.group} · {e.period}"),("Bloque",e.block),("Masa atómica",e.atomic_mass or "No disponible"),("Configuración electrónica",e.electron_configuration or "No disponible"),("Electronegatividad",e.electronegativity or "No disponible"),("Punto de fusión",e.melting_point or "No disponible"),("Punto de ebullición",e.boiling_point or "No disponible"),("Estado",e.phase or "No disponible")]
+  props=[("Grupo / Período",f"{e.group} · {e.period}"),("Bloque",e.block),("Masa atómica",e.atomic_mass or "No disponible"),("Configuración electrónica",e.electron_configuration or "No disponible"),("Electronegatividad",e.electronegativity or "No disponible"),("Punto de fusión",e.melting_point or "No disponible"),("Punto de ebullición",self.format_temp(e.boiling_point)),("Densidad",f"{e.density} {e.density_unit}" if e.density is not None else "No disponible"),("Estado",e.phase or "No disponible")]
   return self.card(ft.Column(controls=[self.text("SELECCIONADO",10,color=MUTED),self.text(f"{e.number}  {e.name} ({e.symbol})",18,ft.FontWeight.BOLD),*[ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN,controls=[self.text(k,color=MUTED),self.text(v,weight=ft.FontWeight.BOLD)]) for k,v in props],self.btn("★ Favorito",lambda ev:self.toggle_favorite(e.number)),self.btn("Comparar",lambda ev:self.add_compare(e.number)),self.btn("Abrir en Tabla",lambda ev:self.go("Tabla"),True)],spacing=10))
  def search_view(self):
   q=ft.TextField(label="Por nombre, símbolo o número atómico",value=self.query,on_change=lambda e:self.set_query(e.control.value),expand=True)
