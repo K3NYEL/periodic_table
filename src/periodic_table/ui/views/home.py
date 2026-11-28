@@ -1,5 +1,5 @@
 import flet as ft
-from ..components.periodic_grid import PeriodicGrid
+from src.periodic_table.ui.components.elements_title import ElementTile
 from ..components.search_bar import SearchBar
 
 class HomeView:
