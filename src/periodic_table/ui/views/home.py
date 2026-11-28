@@ -13,9 +13,9 @@ class HomeView:
         self.navigate = navigate
         self.compare_feedback = ft.Text("", size=11, color="#7EA9D8")
         self.elements = repository.get_all()
-        self.results = list(self.elements)
+        self.results = self.services["search"].search(state.query) if state.query.strip() else list(self.elements)
         self.detail = ft.Container(padding=18, border_radius=12, bgcolor="#1A222E", content=ft.Text("Select an element to inspect its properties.", color="#AAB6C5"))
-        self.search = ft.TextField(hint_text="Search by name, symbol or atomic number", prefix_icon=ft.Icons.SEARCH, on_change=self._search, expand=True, border_color="#394657", focused_border_color="#6EA8FE")
+        self.search = ft.TextField(value=self.state.query, hint_text="Search by name, symbol or atomic number", prefix_icon=ft.Icons.SEARCH, on_change=self._search, expand=True, border_color="#394657", focused_border_color="#6EA8FE")
         self.grid = ft.GridView(expand=True, runs_count=18, max_extent=76, child_aspect_ratio=0.92, spacing=5, run_spacing=5)
         self._render_grid()
         self.control = ft.Column(expand=True, spacing=14, controls=[
