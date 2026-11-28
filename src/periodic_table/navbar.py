@@ -22,8 +22,8 @@ class Navbar(ft.Container):
                                 height=34,
                                 border_radius=9,
                                 bgcolor="#243B59",
-                                alignment=ft.Alignment.CENTER,
-                                content=ft.Icon(ft.Icons.SCIENCE_OUTLINED, color="#8DBBFF", size=20),
+                                padding=7,
+                                content=ft.Icon(ft.Icons.SCIENCE, color="#8DBBFF", size=20),
                             ),
                             ft.Column(
                                 spacing=0,
@@ -35,8 +35,8 @@ class Navbar(ft.Container):
                         ],
                     ),
                     ft.Container(expand=True),
-                    self._nav_item("Table", "/", ft.Icons.GRID_VIEW_OUTLINED),
-                    self._nav_item("Compare", "/compare", ft.Icons.COMPARE_ARROWS_OUTLINED, compare_count),
+                    self._nav_item("Table", "/", ft.Icons.GRID_VIEW),
+                    self._nav_item("Compare", "/compare", ft.Icons.COMPARE_ARROWS, compare_count),
                 ],
             ),
         )
