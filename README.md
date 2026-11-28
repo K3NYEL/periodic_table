@@ -1,8 +1,8 @@
 # Periodic Table
 
-Aplicación de escritorio y web construida con Python y Flet. El proyecto está en proceso de reconstrucción por fases; esta rama prioriza estabilidad, un contrato de datos coherente y una primera experiencia funcional.
+Aplicación de escritorio y web construida con Python y Flet. La rama `local-charges` contiene una reconstrucción inicial de la aplicación, enfocada en estabilidad, datos coherentes y una primera experiencia de exploración.
 
-## Funcionalidades disponibles en esta rama
+## Funcionalidades implementadas
 
 - Carga de los 118 elementos desde `assets/data/elements.json`.
 - Modelo tipado con número atómico, símbolo, nombre, grupo, período, bloque, masa atómica, categoría, fase y propiedades físicas.
@@ -10,7 +10,7 @@ Aplicación de escritorio y web construida con Python y Flet. El proyecto está 
 - Búsqueda por nombre, símbolo o número atómico.
 - Tabla periódica posicionada por grupo y período, con lantánidos y actínidos en filas separadas.
 - Panel de propiedades al seleccionar un elemento.
-- Servicio de comparación con límite de cuatro elementos (la interfaz de comparación aún está pendiente).
+- Comparación de hasta cuatro elementos.
 
 ## Requisitos y ejecución
 
@@ -35,9 +35,8 @@ uv run pytest
 
 Las pruebas cubren la carga de los 118 elementos, el mapeo de categorías y fases, los valores opcionales, la búsqueda y el límite del servicio de comparación.
 
-## Pendiente
+## Próximos pasos
 
-- Navegación completa y vistas independientes.
-- Interfaz de comparación.
-- Quiz, favoritos, notas y preferencias.
 - Pruebas de integración de la interfaz y validación en escritorio/web.
+- Quiz, favoritos, notas y preferencias.
+- Mejorar la navegación a medida que se incorporen nuevas funcionalidades.
