@@ -19,15 +19,15 @@ class HomeView:
         self.grid = ft.GridView(expand=True, runs_count=18, max_extent=76, child_aspect_ratio=0.92, spacing=5, run_spacing=5)
         self._render_grid()
         self.control = ft.Column(expand=True, spacing=14, controls=[
-            ft.Container(padding=ft.padding.symmetric(horizontal=24, vertical=18), content=ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN, controls=[
+            ft.Container(padding=ft.Padding.symmetric(horizontal=24, vertical=18), content=ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN, controls=[
                 ft.Column(spacing=2, controls=[ft.Text("PERIODIC TABLE", size=12, weight=ft.FontWeight.BOLD, color="#7EA9D8"), ft.Text("Explore the elements", size=25, weight=ft.FontWeight.BOLD, color="#F1F5F9")]),
                 ft.Container(width=380, content=self.search),
                 ft.TextButton("Compare", on_click=lambda event: self.navigate("/compare")),
             ])),
-            ft.Container(expand=True, padding=ft.padding.symmetric(horizontal=20), content=ft.Row(expand=True, vertical_alignment=ft.CrossAxisAlignment.START, spacing=16, controls=[
+            ft.Container(expand=True, padding=ft.Padding.symmetric(horizontal=20), content=ft.Row(expand=True, vertical_alignment=ft.CrossAxisAlignment.START, spacing=16, controls=[
                 ft.Container(expand=4, content=self.grid), ft.Container(width=280, content=self.detail),
             ])),
-            ft.Container(padding=ft.padding.only(left=24, right=24, bottom=14), content=ft.Text(f"{len(self.elements)} elements · Search and select an element for details", color="#8290A2", size=12)),
+            ft.Container(padding=ft.Padding.only(left=24, right=24, bottom=14), content=ft.Text(f"{len(self.elements)} elements · Search and select an element for details", color="#8290A2", size=12)),
         ])
 
     def _search(self, event):

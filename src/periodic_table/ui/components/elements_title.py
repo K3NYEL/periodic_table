@@ -13,7 +13,7 @@ class ElementTile(ft.Container):
             padding=5,
             border_radius=7,
             bgcolor=color,
-            border=ft.border.all(2, "#FFFFFF" if selected else "#00000022"),
+            border=ft.Border.all(2, "#FFFFFF" if selected else "#00000022"),
             on_click=on_click,
             content=ft.Column(
                 spacing=0,
