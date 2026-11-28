@@ -14,7 +14,7 @@ class HomeView:
         self.results = list(self.elements)
         self.detail = ft.Container(padding=18, border_radius=12, bgcolor="#1A222E", content=ft.Text("Select an element to inspect its properties.", color="#AAB6C5"))
         self.search = ft.TextField(hint_text="Search by name, symbol or atomic number", prefix_icon=ft.Icons.SEARCH, on_change=self._search, expand=True, border_color="#394657", focused_border_color="#6EA8FE")
-        self.grid = ft.GridView(expand=True, runs_count=18, max_extent=82, child_aspect_ratio=0.92, spacing=6, run_spacing=6)
+        self.grid = ft.GridView(expand=True, runs_count=18, max_extent=76, child_aspect_ratio=0.92, spacing=5, run_spacing=5)
         self._render_grid()
         self.control = ft.Column(expand=True, spacing=14, controls=[
             ft.Container(padding=ft.padding.symmetric(horizontal=24, vertical=18), content=ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN, controls=[
@@ -35,8 +35,27 @@ class HomeView:
 
     def _render_grid(self):
         self.grid.controls.clear()
+        if self.state.query.strip():
+            for element in self.results:
+                self.grid.controls.append(ElementTile(element, on_click=lambda event, item=element: self._select(item)))
+            return
+
+        slots = [None] * (9 * 18)
         for element in self.results:
-            self.grid.controls.append(ElementTile(element, on_click=lambda event, item=element: self._select(item)))
+            if element.category.value == "lanthanide":
+                row, column = 7, element.number - 57 + 3
+            elif element.category.value == "actinide":
+                row, column = 8, element.number - 89 + 3
+            else:
+                row, column = element.period - 1, (element.group or 1) - 1
+            if 0 <= row < 9 and 0 <= column < 18:
+                slots[row * 18 + column] = element
+
+        for element in slots:
+            if element is None:
+                self.grid.controls.append(ft.Container(width=76, height=82))
+            else:
+                self.grid.controls.append(ElementTile(element, on_click=lambda event, item=element: self._select(item)))
 
     def _select(self, element: Element):
         self.state.select(element)
