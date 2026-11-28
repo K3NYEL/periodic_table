@@ -1,13 +1,18 @@
+from pathlib import Path
+import sys
 import flet as ft
-from src.periodic_table.app import create_app
 
-def main(page: ft.Page):
-    page.title = "PeriodicTable"
-    page.window.width = 1200
-    page.window.height = 800
-    page.add(
-        
-    )
+ROOT = Path(__file__).resolve().parent
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from periodic_table.app import create_app
+
+
+def main(page: ft.Page) -> None:
+    create_app(page)
+
 
 if __name__ == "__main__":
-    ft.main(target=app)
+    ft.run(main)
