@@ -5,12 +5,13 @@ from ..components.elements_title import ElementTile
 
 
 class HomeView:
-    def __init__(self, page: ft.Page, repository, state, services, navigate):
+    def __init__(self, page: ft.Page, repository, state, services, navigate, on_compare_change):
         self.page = page
         self.repository = repository
         self.state = state
         self.services = services
         self.navigate = navigate
+        self.on_compare_change = on_compare_change
         self.compare_feedback = ft.Text("", size=11, color="#7EA9D8")
         self.elements = repository.get_all()
         self.results = self.services["search"].search(state.query) if state.query.strip() else list(self.elements)
@@ -21,8 +22,7 @@ class HomeView:
         self.control = ft.Column(expand=True, spacing=14, controls=[
             ft.Container(padding=ft.Padding.symmetric(horizontal=24, vertical=18), content=ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN, controls=[
                 ft.Column(spacing=2, controls=[ft.Text("PERIODIC TABLE", size=12, weight=ft.FontWeight.BOLD, color="#7EA9D8"), ft.Text("Explore the elements", size=25, weight=ft.FontWeight.BOLD, color="#F1F5F9")]),
-                ft.Container(width=380, content=self.search),
-                ft.TextButton("Compare", on_click=lambda event: self.navigate("/compare")),
+                ft.Container(width=420, content=self.search),
             ])),
             ft.Container(expand=True, padding=ft.Padding.symmetric(horizontal=20), content=ft.Row(expand=True, vertical_alignment=ft.CrossAxisAlignment.START, spacing=16, controls=[
                 ft.Container(expand=4, content=self.grid), ft.Container(width=280, content=self.detail),
@@ -91,6 +91,7 @@ class HomeView:
         was_selected = element.number in compare.numbers
         changed = compare.toggle(element.number)
         self.state.compare_numbers = list(compare.numbers)
+        self.on_compare_change()
         if not changed:
             self.compare_feedback.value = "Comparison is limited to four elements."
         else:
