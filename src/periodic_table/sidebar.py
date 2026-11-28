@@ -25,7 +25,7 @@ class Sidebar(ft.Container):
                                     height=38,
                                     border_radius=10,
                                     bgcolor="#243B59",
-                                    alignment=ft.Alignment.CENTER,
+                                    alignment=ft.Alignment(0, 0),
                                     content=ft.Icon(ft.Icons.SCIENCE, color="#8DBBFF", size=22),
                                 ),
                                 ft.Column(
