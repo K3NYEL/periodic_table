@@ -40,4 +40,4 @@ copyright = "Copyright (C) 2023-2026 UOE.org"
 # icon_background = "#ffffff"
 
 [tool.flet.app]
-path = "src"
+path = "."
