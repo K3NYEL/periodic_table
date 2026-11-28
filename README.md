@@ -11,7 +11,7 @@ Aplicación de escritorio y web construida con Python y Flet. La rama `local-cha
 - Tabla periódica posicionada por grupo y período, con lantánidos y actínidos en filas separadas.
 - Panel de propiedades al seleccionar un elemento.
 - Comparación de hasta cuatro elementos.
-- Navbar persistente con navegación entre Tabla y Comparación, indicador de vista activa y contador de elementos seleccionados.
+- Sidebar lateral persistente con navegación entre Tabla y Comparación, indicador de vista activa y contador de elementos seleccionados.
 
 ## Requisitos y ejecución
 
