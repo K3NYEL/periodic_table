@@ -1,16 +1,16 @@
-# PeriodicTable
+# Periodic Table
 
-Aplicación de escritorio/web de tabla periódica construida con Python y Flet. La interfaz sigue el documento **Periodic Table – Flet App Architecture**.
+Aplicación de escritorio y web construida con Python y Flet. El proyecto está en proceso de reconstrucción por fases; esta rama prioriza estabilidad, un contrato de datos coherente y una primera experiencia funcional.
 
-## Funcionalidades
+## Funcionalidades disponibles en esta rama
 
-- Tabla periódica de 118 elementos, organizada por período y grupo, con colores por categoría.
+- Carga de los 118 elementos desde `assets/data/elements.json`.
+- Modelo tipado con número atómico, símbolo, nombre, grupo, período, bloque, masa atómica, categoría, fase y propiedades físicas.
+- Normalización de las categorías del conjunto de datos, incluidos los nombres localizados.
 - Búsqueda por nombre, símbolo o número atómico.
-- Panel de selección y detalle del elemento.
-- Comparación de hasta cuatro elementos.
-- Quiz de símbolos, nombres y categorías con puntuación, racha y mejor racha.
-- Favoritos y notas por elemento.
-- Ajustes de tema, idioma, unidad de temperatura, tamaño de casilla y colores por categoría.
+- Tabla periódica posicionada por grupo y período, con lantánidos y actínidos en filas separadas.
+- Panel de propiedades al seleccionar un elemento.
+- Servicio de comparación con límite de cuatro elementos (la interfaz de comparación aún está pendiente).
 
 ## Requisitos y ejecución
 
@@ -32,3 +32,12 @@ uv run flet run --web
 ```bash
 uv run pytest
 ```
+
+Las pruebas cubren la carga de los 118 elementos, el mapeo de categorías y fases, los valores opcionales, la búsqueda y el límite del servicio de comparación.
+
+## Pendiente
+
+- Navegación completa y vistas independientes.
+- Interfaz de comparación.
+- Quiz, favoritos, notas y preferencias.
+- Pruebas de integración de la interfaz y validación en escritorio/web.
