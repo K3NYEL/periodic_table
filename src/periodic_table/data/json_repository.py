@@ -20,11 +20,13 @@ _CATEGORY_ALIASES = {
     "post transition": Category.POST_TRANSITION,
     "transition": Category.TRANSITION,
     "lanthanide": Category.LANTHANIDE,
+    "lantánido": Category.LANTHANIDE,
     "actinide": Category.ACTINIDE,
 }
 
 _PHASE_ALIASES = {
     "solid": Phase.SOLID,
+    "sólido": Phase.SOLID,
     "líquido": Phase.LIQUID,
     "liquid": Phase.LIQUID,
     "gas": Phase.GAS,
